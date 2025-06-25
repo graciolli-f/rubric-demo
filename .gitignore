@@ -1,0 +1,22 @@
+ package-lock.json
+ node_modules
+ dist
+ .next
+ .env
+ .env.local
+ .env.development.local
+ .env.test.local
+ .env.production.local
+
+demo/node_modules
+demo/dist
+demo/.next
+demo/package-lock.json
+
+packages/validate/node_modules
+packages/validate/dist
+packages/validate/.next
+packages/validate/package-lock.json
+
+ tree.txt
+ .DS_Store
