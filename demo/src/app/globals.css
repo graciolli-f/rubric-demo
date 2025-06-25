@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-error {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-pulse-error {
+  animation: pulse-error 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Code block styling */
+.code-block {
+  @apply bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.code-block .comment {
+  @apply text-gray-500;
+}
+
+.code-block .keyword {
+  @apply text-purple-400;
+}
+
+.code-block .string {
+  @apply text-green-400;
+}
+
+.code-block .function {
+  @apply text-blue-400;
+}
+
+/* Validation report styling */
+.validation-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.validation-badge.error {
+  @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+}
+
+.validation-badge.warning {
+  @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+}
+
+.validation-badge.success {
+  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+}
+
+/* Category icons */
+.category-icon {
+  @apply inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold;
+}
+
+.category-icon.accessibility {
+  @apply bg-blue-500 text-white;
+}
+
+.category-icon.performance {
+  @apply bg-yellow-500 text-white;
+}
+
+.category-icon.security {
+  @apply bg-red-500 text-white;
+}

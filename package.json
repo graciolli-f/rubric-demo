@@ -1,0 +1,19 @@
+{
+    "devDependencies":{
+        "@types/node":"^24.0.4",
+        "typescript": "^5.0.0"
+    },  
+    "name": "rubric-demo",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+      "packages/*",
+      "demo"
+    ],
+    "scripts": {
+      "dev": "npm run build:validate && npm run dev:demo",
+      "build:validate": "cd packages/validate && npm run build",
+      "dev:demo": "cd demo && npm run dev",
+      "build": "npm run build:validate && cd demo && npm run build"
+    }
+}

@@ -1,0 +1,47 @@
+rubric-demo/
+├── packages/
+│   └── validate/
+│       ├── package.json
+│       ├── src/
+│       │   ├── index.ts                 # Main exports & wrapper functions
+│       │   ├── core/                    # Your existing Rubric core
+│       │   │   ├── parser.ts           # (existing)
+│       │   │   ├── validator.ts        # (enhanced with security/performance)
+│       │   │   ├── types.ts            # (existing)
+│       │   │   └── react.ts            # (existing)
+│       │   └── presets/
+│       │       ├── button.rux          # Enhanced button spec
+│       │       ├── form-input.rux      # Input field spec
+│       │       └── link.rux            # Link component spec
+│       └── dist/                       # Built package
+├── demo/
+│   ├── package.json
+│   ├── next.config.js
+│   ├── tailwind.config.js
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── layout.tsx
+│   │   │   ├── page.tsx                # Main demo page
+│   │   │   └── globals.css
+│   │   └── components/
+│   │       ├── demo/
+│   │       │   ├── AIGeneratedComponents.tsx    # Problematic components
+│   │       │   ├── SecureComponents.tsx         # Fixed components
+│   │       │   └── ValidationReport.tsx         # Enhanced report UI
+│   │       └── ui/
+│   │           ├── CodeExample.tsx              # Integration code display
+│   │           └── CategoryBadge.tsx            # Issue category indicators
+│   └── public/
+│       └── demo-assets/
+├── docs/
+│   ├── README.md                       # Package documentation
+│   ├── DEMO.md                         # Demo setup instructions
+│   └── VALIDATION_RULES.md             # Complete validation rule reference
+├── scripts/
+│   ├── build-package.sh                # Build @rubric/validate
+│   ├── run-demo.sh                     # Start demo app
+│   └── publish-package.sh              # NPM publishing
+├── .gitignore
+├── package.json                        # Root workspace config
+├── tsconfig.json                       # Shared TypeScript config
+└── README.md                           # Project overview & quick start

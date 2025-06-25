@@ -1,0 +1,36 @@
+{
+  "name": "@rubric/validate",
+  "version": "0.1.0",
+  "description": "AI Code Quality Validator - Catch accessibility, performance, and security issues",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "presets"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "validation",
+    "accessibility",
+    "a11y",
+    "performance",
+    "security",
+    "code-quality",
+    "ai",
+    "react"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "react": "^18.2.0",
+    "typescript": "^5.0.0"
+  }
+}
