@@ -11,4 +11,3 @@ This experiment demonstrates how AI agents subvert architectural constraints.
 - `src/` - Implementation code
 - `analysis/` - Metrics and visualization tools
 - `results/` - Captured results from each act
-- `demo/` - Video and presentation assets
