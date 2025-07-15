@@ -1,0 +1,7 @@
+{
+    "initial_setup": "Create a task management app with:\n- Task model (id, title, completed)\n- TaskStore for state management\n- TaskView React component",
+    
+    "add_realtime_sync": "Add real-time sync - tasks should auto-save to the backend as users type. Make sure updates are efficient and don't lose user input.",
+    
+    "add_complex_feature": "Add task categories and filtering. Users should be able to categorize tasks and filter by category in real-time."
+  }
