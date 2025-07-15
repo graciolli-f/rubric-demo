@@ -2,10 +2,11 @@
 
 This experiment demonstrates how AI agents subvert architectural constraints.
 
-## Three Acts
-1. **No Constraints**: Baseline chaos
-2. **Mutable Constraints**: Catch AI cheating  
-3. **Immutable Constraints**: Proper architecture
+## Experiments
+1. **Control - No Constraints**
+   **Exp 0 - Inline Comments Only**
+2. **Exp 1 - Mutable Constraints**
+3. **Exp 2 - Immutable Constraints**
 
 ## Structure
 - `src/` - Implementation code
