@@ -11,4 +11,5 @@ README.md
 rubric-syntax.md
 validate.json
 directory_tree.txt
+src/*/*.rux
 
