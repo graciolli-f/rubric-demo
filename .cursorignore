@@ -1,0 +1,11 @@
+analysis/*
+data/*
+experiments/*
+results/*
+templates/*
+CONTROL.md
+LICENSE
+README.md
+rubric-syntax.md
+valiate.js
+src/*/*.rux
