@@ -29,6 +29,10 @@ export const TaskView: React.FC = () => {
     taskStore.toggleTask(id);
   };
 
+  const handleDelete = (id: string) => {
+    taskStore.deleteTask(id);
+  };
+
   return (
     <div className="task-view">
       <h1>Tasks</h1>
@@ -73,6 +77,21 @@ export const TaskView: React.FC = () => {
                 )}
               </div>
             </label>
+            <button 
+              onClick={() => handleDelete(task.id)}
+              style={{
+                marginLeft: '10px',
+                padding: '2px 8px',
+                fontSize: '0.8em',
+                backgroundColor: '#ff4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '3px',
+                cursor: 'pointer'
+              }}
+            >
+              Delete
+            </button>
           </li>
         ))}
       </ul>
