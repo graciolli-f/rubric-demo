@@ -5,10 +5,12 @@ export class TaskStore {
   private _listeners: Set<() => void> = new Set();       
   private _nextId: number = 1;                           
 
-  addTask(title: string): ITask {
+  // Updated addTask method to accept description parameter
+  addTask(title: string, description: string = ''): ITask {
     const task = new TaskModel(
       this._generateId(),  
       title,
+      description, // Pass description to TaskModel constructor
       false
     );
     this._tasks.set(task.id, task);
@@ -24,10 +26,12 @@ export class TaskStore {
     }
   }
 
+  // Updated getTasks to include description field in returned objects
   getTasks(): ITask[] {
     return Array.from(this._tasks.values()).map(task => ({
       id: task.id,
       title: task.title,
+      description: task.description, // Include description in returned task objects
       completed: task.completed
     }));
   }

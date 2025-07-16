@@ -1,244 +1,180 @@
-# Act 1 Experiment Protocol: No Constraints (Baseline Chaos)
+# Control Experiment Protocol: No Constraints & No Rules (Baseline)
 
 ## Objective
-Establish baseline architectural quality when AI agents generate code without any constraints. Document the natural tendencies toward poor architecture across different models and prompt complexities.
+Document how AI agents modify a well-architected codebase when given feature requests WITHOUT any constraints. We start with clean architecture and observe how it progresses.
+
+## Starting Codebase
+
+Each trial begins with the **same clean codebase**:
+```
+src/
+├── models/
+│   └── task.ts         # Pure model with private members
+├── stores/
+│   └── task-store.ts   # State management with clear API
+├── views/
+│   └── task-view.tsx   # React component
+└── app.tsx            # Simple entry point
+```
+
+This codebase already has:
+- Clean separation of concerns
+- Private members (with `_` prefix)
+- Clear public APIs
+- Proper imports structure
 
 ## Setup for Each Trial
 
 ### 1. Branch Creation
 ```bash
 git checkout baseline
-git checkout -b act1-[model]-trial[N]-[timestamp]
+git checkout -b control-[model]-trial[N]-[timestamp]
 # Example: act1-claude-trial1-20240115_143022
 ```
 
 ### 2. Environment Preparation
-- Remove any `.rux` files
-- Ensure `.cursorrules` contains only: `# No special rules`
+- Ensure NO `.rux` files exist
+- NO .cursorrules
 - Clear Cursor chat history
-- Fresh Cursor window
+- Open the existing codebase in Cursor
 
-### 3. Initial State
-- Empty `src/` directory with only folder structure:
-  ```
-  src/
-  ├── models/
-  ├── stores/
-  └── views/
-  ```
+### 3. Capture Initial State
+```bash
+# Document the clean starting point
+git add .
+git commit -m "Set up control baseline"
+```
 
 ## Trial Structure
 
 ### Trials Per Model: 3
-- **Trial 1**: Simple → Complex progression
-- **Trial 2**: Complex from start
-- **Trial 3**: Mixed complexity
+- **Trial 1**: Progressive feature additions
+- **Trial 2**: Complex feature from start
+- **Trial 3**: Architectural stress test
 
 ### Models to Test
-1. **Claude 3.5 Sonnet** (via Cursor)
-2. **GPT-4** (via Cursor)
-3. **Gemini** (if available in Cursor)
+1. **Claude 4 Sonnet (thinking)** (via Cursor)
+2. **GPT-4o** (via Cursor)
+3. **Gemini 2.5 Pro (thinking)** (via Cursor)
 
 Total experiments: 9 (3 models × 3 trials)
 
 ## Prompt Sequences
 
-### Trial 1: Progressive Complexity
+### Trial 1: Progressive Feature Additions
 
-#### Prompt 1.1 (Simple - Control)
+#### Prompt 1.1 (Simple Addition)
 ```
-Create a basic task model with id, title, and completed fields.
+Add a task description field to the existing task model and display it in the UI.
 ```
-**Expected**: Should create clean model without issues
+**Watch for**: 
+- Does it maintain private `_description`?
+- Does it update interfaces properly?
+- Does it respect existing patterns?
 
-#### Prompt 1.2 (Simple - Control)
+#### Prompt 1.2 (Cross-Cutting Concern)
 ```
-Add a method to toggle the completed status.
+Add logging for all task operations (create, toggle, delete). 
+Log to console: "[timestamp] Action: [action] Task: [id]"
 ```
-**Expected**: Should add method to existing model cleanly
+**Watch for**: 
+- WHERE does it add console.log statements?
+- Does it violate the store's "no console" principle?
+- Does it centralize or scatter logging?
 
-#### Prompt 1.3 (Medium Complexity)
-```
-Create a task management app with:
-- Task model (id, title, completed)
-- TaskStore for state management
-- TaskView React component to display tasks
-```
-**Expected**: May start mixing concerns, imports between layers
-
-#### Prompt 1.4 (High Complexity - Architectural Stress)
+#### Prompt 1.3 (External Integration)
 ```
 Add real-time sync - tasks should auto-save to the backend as users type.
-Use a WebSocket connection at ws://api.example.com/sync
+Use fetch() to POST to https://api.example.com/tasks
+Include optimistic updates and error handling.
 ```
-**Expected**: Likely to add WebSocket code in wrong places
+**Watch for**:
+- WHERE does the fetch() code go?
+- Does it add API calls directly in components?
+- How does it handle the store-api boundary?
 
-#### Prompt 1.5 (Maximum Complexity)
+#### Prompt 1.4 (State Complexity)
 ```
-Add the following features:
-- Task categories with filtering
-- Undo/redo functionality
-- Optimistic updates with rollback on sync failure
-- Local storage backup when offline
+Add undo/redo functionality for all task operations.
+Users should be able to undo the last 10 actions.
 ```
-**Expected**: Architectural chaos - mixed concerns everywhere
+**Watch for**:
+- Does it modify private store state directly?
+- Where does the undo stack live?
+- Does it break existing encapsulation?
 
-### Trial 2: Complex from Start
-
-#### Prompt 2.1 (Immediate Complexity)
+#### Prompt 1.5 (Performance + Features)
 ```
-Build a real-time collaborative task management app with:
-- Multiple users can edit tasks simultaneously
-- Changes sync across all connected clients instantly
-- Offline support with sync when reconnected
-- Optimistic UI updates
-
-Use React for the UI and WebSockets for real-time sync.
-```
-**Expected**: Likely to create monolithic component with everything mixed
-
-#### Prompt 2.2 (Add Constraints Without Rules)
-```
-Ensure the app follows these requirements:
-- Tasks should never be lost, even if connection fails
-- UI should never freeze during sync operations
-- Support undo/redo for all operations
-- Show who is currently editing each task
-```
-**Expected**: More complexity stuffed into existing files
-
-### Trial 3: Mixed Complexity
-
-#### Prompt 3.1 (Simple - Control)
-```
-Create a function to validate task titles (not empty, max 100 chars).
-```
-**Expected**: Should be simple, but note WHERE it puts this
-
-#### Prompt 3.2 (Architectural Decision Point)
-```
-Add a task priority system (low, medium, high) with visual indicators.
-Where should the priority logic live?
-```
-**Expected**: Interesting to see if AI explains its architectural choice
-
-#### Prompt 3.3 (Integration Complexity)
-```
-Integrate with an external API:
-- POST /api/tasks to create
-- PUT /api/tasks/:id to update
-- GET /api/tasks to fetch all
-- Handle errors gracefully
-```
-**Expected**: API calls likely scattered across components
-
-#### Prompt 3.4 (Performance Concern)
-```
-Users complain the app is slow with 1000+ tasks. Add:
+The app needs to handle 10,000 tasks. Add:
 - Virtual scrolling for the task list
-- Debounced search
-- Lazy loading of task details
+- Search with debouncing
+- Bulk operations (select all, delete selected)
+- Task counts by status
 ```
-**Expected**: Performance code mixed with business logic
+**Watch for**:
+- Does performance code get mixed with business logic?
+- Are concerns properly separated?
+- File size explosion?
+
+### Trial 2: Complex Feature from Start
+
+#### Prompt 2.1 (Major Feature Addition)
+```
+Transform this into a collaborative task app:
+- Multiple users can edit tasks simultaneously  
+- Show who is currently editing each task
+- Real-time cursor positions
+- Conflict resolution when two users edit the same task
+- Use WebSockets: ws://api.example.com/collaborate
+
+Implement this in the existing codebase.
+```
+**Watch for**:
+- Massive changes to existing clean architecture
+- WebSocket code placement
+- How it modifies the simple store pattern
+- Whether it respects private members
+
+### Trial 3: Architectural Stress Test
+
+#### Prompt 3.1 (Plugin System)
+```
+Add a plugin system that allows third-party developers to:
+- Add custom task fields
+- Hook into task lifecycle events  
+- Add custom UI sections
+- Access task data safely
+
+Implement this without breaking existing functionality.
+```
+**Watch for**:
+- Does it expose private members?
+- How does it modify the closed models?
+- Where does plugin logic live?
+
+#### Prompt 3.2 (Multi-Storage Backend)
+```
+The app needs to support multiple storage backends:
+- LocalStorage for offline
+- REST API for online  
+- WebSocket for real-time
+- IndexedDB for large datasets
+
+The user can switch between modes. Implement this.
+```
+**Watch for**:
+- Complete destruction of simple store pattern
+- Mixing of storage concerns throughout codebase
+- Violation of single responsibility
 
 ## Data Collection
 
-### For Each Prompt Response:
+### After Each Prompt:
 
-1. **Screenshot Requirements**
-   - File structure after implementation
-   - Any particularly egregious code examples
-   - Import statements showing coupling
-
-2. **Code Metrics to Capture**
-   ```bash
-   # After each prompt, run:
-   find src -name "*.ts" -o -name "*.tsx" | xargs wc -l > metrics/act1-[model]-trial[N]-prompt[X]-loc.txt
-   
-   # Count imports crossing boundaries
-   grep -r "import.*from.*\.\./\.\." src/ > metrics/act1-[model]-trial[N]-prompt[X]-imports.txt
-   ```
-
-3. **Architectural Violations to Note**
-   - [ ] API calls in components
-   - [ ] Business logic in views
-   - [ ] State management in models
-   - [ ] Direct DOM manipulation in stores
-   - [ ] Circular dependencies
-   - [ ] God objects/components
-   - [ ] Mixed sync/async patterns
-   - [ ] No error boundaries
-
-4. **AI Behavior Observations**
-   - Does it explain architectural decisions?
-   - Does it express uncertainty about where to put code?
-   - Does it mention best practices but ignore them?
-   - Does it refactor previous code or just add more?
-
-### After Each Trial:
-
-1. **Final State Analysis**
-   ```bash
-   # Generate dependency graph (if you have madge installed)
-   npx madge --circular --image deps.png src/
-   
-   # Count total files
-   find src -type f -name "*.ts" -o -name "*.tsx" | wc -l
-   
-   # Measure file sizes
-   find src -type f -exec wc -l {} \; | sort -n
-   ```
-
-2. **Commit and Tag**
+1. **Immediate Commit**
    ```bash
    git add .
-   git commit -m "Act 1: [Model] Trial [N] - Final state"
-   git tag act1-[model]-trial[N]-complete
+   git commit -m "After: [prompt description]"
    ```
 
-## Key Architectural Smells to Document
-
-### 1. **Mixed Concerns**
-- Rendering logic in stores
-- API calls in components
-- Business rules in views
-
-### 2. **Poor Encapsulation**
-- Public members that should be private
-- Leaky abstractions
-- Direct state manipulation
-
-### 3. **Coupling Issues**
-- Circular dependencies
-- Deep import paths
-- Tight coupling between unrelated modules
-
-### 4. **Scaling Problems**
-- Everything in one file
-- No clear module boundaries
-- Hardcoded values throughout
-
-## Comparison Points
-
-After all Act 1 trials, create comparison table:
-
-| Model | Trial | Total Files | Largest File (LOC) | Cross-boundary Imports | API calls in Views | Mixed Concerns |
-|-------|-------|------------|-------------------|---------------------|-------------------|----------------|
-| Claude | 1 | ? | ? | ? | Yes/No | High/Med/Low |
-| Claude | 2 | ? | ? | ? | Yes/No | High/Med/Low |
-| ... | ... | ... | ... | ... | ... | ... |
-
-## Success Criteria
-
-Act 1 is successful if we can demonstrate:
-1. **Consistent** architectural problems across models
-2. **Predictable** degradation as complexity increases
-3. **Quantifiable** metrics showing poor structure
-4. **Visual** evidence of tangled dependencies
-
-## Notes
-
-- If AI creates directories/structure on its own, document it
-- If AI mentions architectural concerns but ignores them, screenshot
-- Keep same system prompt for all trials within a model
-- Note any model-specific tendencies (e.g., Claude more verbose, GPT more concise)
+2. **Vio
