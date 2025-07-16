@@ -1,19 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { taskStore } from '../stores/task-store';
+import { SyncStatus } from '../models/task';
+
+interface EditingState {
+  [taskId: string]: {
+    title?: boolean;
+    description?: boolean;
+  };
+}
 
 export const TaskView: React.FC = () => {
   const [tasks, setTasks] = useState(taskStore.getTasks());
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
+  const [editing, setEditing] = useState<EditingState>({});
   
   const _isValidTitle = (title: string): boolean => {
     return title.trim().length > 0 && title.trim().length < 100;
   };
 
   useEffect(() => {
-    return taskStore.subscribe(() => {
+    const unsubscribe = taskStore.subscribe(() => {
       setTasks(taskStore.getTasks());
     });
+
+    // Cleanup on unmount
+    return () => {
+      unsubscribe();
+      taskStore.cleanup();
+    };
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -31,6 +46,60 @@ export const TaskView: React.FC = () => {
 
   const handleDelete = (id: string) => {
     taskStore.deleteTask(id);
+  };
+
+  const handleTitleEdit = (id: string, newTitle: string) => {
+    if (_isValidTitle(newTitle)) {
+      taskStore.updateTaskTitle(id, newTitle);
+    }
+  };
+
+  const handleDescriptionEdit = (id: string, newDescription: string) => {
+    taskStore.updateTaskDescription(id, newDescription);
+  };
+
+  const handleRetrySync = (id: string) => {
+    taskStore.retrySyncTask(id);
+  };
+
+  const startEditing = (taskId: string, field: 'title' | 'description') => {
+    setEditing(prev => ({
+      ...prev,
+      [taskId]: {
+        ...prev[taskId],
+        [field]: true
+      }
+    }));
+  };
+
+  const stopEditing = (taskId: string, field: 'title' | 'description') => {
+    setEditing(prev => ({
+      ...prev,
+      [taskId]: {
+        ...prev[taskId],
+        [field]: false
+      }
+    }));
+  };
+
+  const getSyncStatusIcon = (syncStatus?: SyncStatus): string => {
+    switch (syncStatus) {
+      case 'synced': return '✅';
+      case 'syncing': return '🔄';
+      case 'error': return '❌';
+      case 'pending': return '⏳';
+      default: return '⏳';
+    }
+  };
+
+  const getSyncStatusColor = (syncStatus?: SyncStatus): string => {
+    switch (syncStatus) {
+      case 'synced': return '#28a745';
+      case 'syncing': return '#007bff';
+      case 'error': return '#dc3545';
+      case 'pending': return '#ffc107';
+      default: return '#ffc107';
+    }
   };
 
   return (
@@ -60,7 +129,13 @@ export const TaskView: React.FC = () => {
 
       <ul>
         {tasks.map(task => (
-          <li key={task.id} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
+          <li key={task.id} style={{ 
+            marginBottom: '15px', 
+            padding: '10px', 
+            border: '1px solid #ddd', 
+            borderRadius: '5px',
+            borderLeft: `4px solid ${getSyncStatusColor(task.syncStatus)}`
+          }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <label style={{ flex: 1 }}>
                 <input
@@ -68,38 +143,152 @@ export const TaskView: React.FC = () => {
                   checked={task.completed}
                   onChange={() => handleToggle(task.id)}
                 />
-                <span style={{
-                  textDecoration: task.completed ? 'line-through' : 'none',
-                  fontWeight: 'bold',
-                  marginLeft: '8px'
-                }}>
-                  {task.title}
-                </span>
+                
+                {editing[task.id]?.title ? (
+                  <input
+                    type="text"
+                    defaultValue={task.title}
+                    style={{
+                      marginLeft: '8px',
+                      fontWeight: 'bold',
+                      border: '1px solid #ddd',
+                      borderRadius: '3px',
+                      padding: '2px 4px'
+                    }}
+                    onBlur={(e) => {
+                      handleTitleEdit(task.id, e.target.value);
+                      stopEditing(task.id, 'title');
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleTitleEdit(task.id, e.currentTarget.value);
+                        stopEditing(task.id, 'title');
+                      } else if (e.key === 'Escape') {
+                        stopEditing(task.id, 'title');
+                      }
+                    }}
+                    autoFocus
+                  />
+                ) : (
+                  <span 
+                    style={{
+                      textDecoration: task.completed ? 'line-through' : 'none',
+                      fontWeight: 'bold',
+                      marginLeft: '8px',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => startEditing(task.id, 'title')}
+                    title="Click to edit"
+                  >
+                    {task.title}
+                  </span>
+                )}
               </label>
-              <button 
-                onClick={() => handleDelete(task.id)}
-                style={{
-                  backgroundColor: '#ff4444',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '3px',
-                  padding: '4px 8px',
-                  fontSize: '12px',
-                  cursor: 'pointer'
-                }}
-              >
-                Delete
-              </button>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span 
+                  style={{ 
+                    fontSize: '16px',
+                    cursor: task.syncStatus === 'error' ? 'pointer' : 'default'
+                  }}
+                  title={task.syncStatus === 'error' ? `Error: ${task.lastSyncError}. Click to retry.` : `Status: ${task.syncStatus}`}
+                  onClick={() => task.syncStatus === 'error' && handleRetrySync(task.id)}
+                >
+                  {getSyncStatusIcon(task.syncStatus)}
+                </span>
+                
+                <button 
+                  onClick={() => handleDelete(task.id)}
+                  style={{
+                    backgroundColor: '#ff4444',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '3px',
+                    padding: '4px 8px',
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-            {task.description && (
+            
+            {editing[task.id]?.description ? (
+              <textarea
+                defaultValue={task.description}
+                style={{
+                  marginTop: '5px',
+                  marginLeft: '24px',
+                  width: 'calc(100% - 24px)',
+                  minHeight: '60px',
+                  border: '1px solid #ddd',
+                  borderRadius: '3px',
+                  padding: '4px'
+                }}
+                onBlur={(e) => {
+                  handleDescriptionEdit(task.id, e.target.value);
+                  stopEditing(task.id, 'description');
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    stopEditing(task.id, 'description');
+                  } else if (e.key === 'Enter' && e.ctrlKey) {
+                    handleDescriptionEdit(task.id, e.currentTarget.value);
+                    stopEditing(task.id, 'description');
+                  }
+                }}
+                autoFocus
+              />
+            ) : (
+              task.description && (
+                <div 
+                  style={{
+                    marginTop: '5px',
+                    marginLeft: '24px',
+                    color: '#666',
+                    fontSize: '14px',
+                    textDecoration: task.completed ? 'line-through' : 'none',
+                    cursor: 'pointer',
+                    padding: '2px 4px',
+                    borderRadius: '3px',
+                    backgroundColor: '#f8f9fa'
+                  }}
+                  onClick={() => startEditing(task.id, 'description')}
+                  title="Click to edit"
+                >
+                  {task.description}
+                </div>
+              )
+            )}
+            
+            {!task.description && !editing[task.id]?.description && (
+              <div 
+                style={{
+                  marginTop: '5px',
+                  marginLeft: '24px',
+                  color: '#999',
+                  fontSize: '14px',
+                  fontStyle: 'italic',
+                  cursor: 'pointer',
+                  padding: '2px 4px'
+                }}
+                onClick={() => startEditing(task.id, 'description')}
+                title="Click to add description"
+              >
+                + Add description
+              </div>
+            )}
+
+            {task.syncStatus === 'error' && (
               <div style={{
                 marginTop: '5px',
                 marginLeft: '24px',
-                color: '#666',
-                fontSize: '14px',
-                textDecoration: task.completed ? 'line-through' : 'none'
+                color: '#dc3545',
+                fontSize: '12px',
+                fontStyle: 'italic'
               }}>
-                {task.description}
+                Sync failed: {task.lastSyncError}
               </div>
             )}
           </li>

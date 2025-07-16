@@ -1,0 +1,22 @@
+module TaskView {
+  @ "React component for displaying tasks.
+  @ Handles UI rendering and user interactions."
+  
+  location: "src/views/task-view.tsx"
+  
+  interface {
+    public TaskView(props: {}) -> JSX.Element
+  }
+  
+  imports {
+    allow "react" as external
+    allow "../stores/task-store" as TaskStore
+    @ "Views can import stores in React apps"
+  }
+  
+  constraints {
+    deny io.network.*     @ "No direct API calls from views"
+    deny io.filesystem.*  @ "No file system access"
+    allow io.console.*    @ "Console logging ok for debugging"
+  }
+}

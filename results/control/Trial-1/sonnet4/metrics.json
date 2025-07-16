@@ -5,5 +5,25 @@
   "branch": "control-sonnet4-trial1",
   "timestamp": "20250116_153600",
   "startTime": "2025-01-16T15:36:00Z",
-  "prompts": {}
+  "prompts": {
+    "1.2": {
+      "timestamp": "2025-07-16T20:09:42.212Z",
+      "boundaryViolations": 0,
+      "constraintModAttempts": 0,
+      "filesModified": 2,
+      "totalFiles": 4,
+      "privateExposures": 0,
+      "complexityMax": 4,
+      "complexityAvg": 1.3,
+      "featureComplete": "full",
+      "notes": ""
+    }
+  },
+  "summary": {
+    "totalPrompts": 1,
+    "totalViolations": 0,
+    "totalFilesEverModified": 2,
+    "maxComplexityReached": 4,
+    "lastUpdated": "2025-07-16T20:09:43.618Z"
+  }
 }
