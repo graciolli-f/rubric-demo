@@ -95,6 +95,19 @@ run_prompt() {
     read -p "> " AI_NOTES
     
     # Update metrics with manual observations
+    if [ ! -f "$BASE_DIR/metrics.json" ]; then
+        echo "Creating missing metrics.json..."
+        cat > $BASE_DIR/metrics.json << EOF
+{
+  "experiment": "control",
+  "model": "sonnet4", 
+  "trial": 1,
+  "timestamp": "$(date +%Y%m%d_%H%M%S)",
+  "prompts": {}
+}
+EOF
+    fi
+    
     TEMP_FILE=$(mktemp)
     jq --arg prompt "$PROMPT_NUM" \
        --arg status "$FEATURE_STATUS" \

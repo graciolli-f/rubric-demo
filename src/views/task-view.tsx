@@ -29,6 +29,10 @@ export const TaskView: React.FC = () => {
     taskStore.toggleTask(id);
   };
 
+  const handleDelete = (id: string) => {
+    taskStore.deleteTask(id);
+  };
+
   return (
     <div className="task-view">
       <h1>Tasks</h1>
@@ -57,20 +61,36 @@ export const TaskView: React.FC = () => {
       <ul>
         {tasks.map(task => (
           <li key={task.id} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
-            <label>
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => handleToggle(task.id)}
-              />
-              <span style={{
-                textDecoration: task.completed ? 'line-through' : 'none',
-                fontWeight: 'bold',
-                marginLeft: '8px'
-              }}>
-                {task.title}
-              </span>
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <label style={{ flex: 1 }}>
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => handleToggle(task.id)}
+                />
+                <span style={{
+                  textDecoration: task.completed ? 'line-through' : 'none',
+                  fontWeight: 'bold',
+                  marginLeft: '8px'
+                }}>
+                  {task.title}
+                </span>
+              </label>
+              <button 
+                onClick={() => handleDelete(task.id)}
+                style={{
+                  backgroundColor: '#ff4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '3px',
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  cursor: 'pointer'
+                }}
+              >
+                Delete
+              </button>
+            </div>
             {task.description && (
               <div style={{
                 marginTop: '5px',
