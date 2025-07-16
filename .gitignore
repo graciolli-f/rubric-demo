@@ -5,3 +5,6 @@ results/*/recordings/
 *.log
 package-lock.json
 directory_tree.txt
+comprehensiveMETRICS.md
+essentialMETRICS.md
+cyclomaticComplexity.md
