@@ -1,98 +1,17 @@
 import { TaskModel, ITask, SyncStatus } from '../models/task';
-import { 
-  ICommand, 
-  TaskStoreState, 
-  AddTaskCommand, 
-  DeleteTaskCommand, 
-  ToggleTaskCommand, 
-  UpdateTaskTitleCommand, 
-  UpdateTaskDescriptionCommand 
-} from './commands';
 
 const API_BASE_URL = 'https://api.example.com/tasks';
 const AUTO_SAVE_DEBOUNCE_MS = 1000; // 1 second debounce
-const MAX_HISTORY_SIZE = 10; // Maximum number of operations to keep for undo
 
-export class TaskStore implements TaskStoreState {
+export class TaskStore {
   private _tasks: Map<string, TaskModel> = new Map();     
   private _listeners: Set<() => void> = new Set();       
   private _nextId: number = 1;
   private _autoSaveTimeouts: Map<string, NodeJS.Timeout> = new Map();
-  
-  // Undo/Redo functionality
-  private _history: ICommand[] = [];
-  private _redoStack: ICommand[] = [];
-
-  // Expose state for commands
-  get tasks(): Map<string, TaskModel> { return this._tasks; }
-  get nextId(): number { return this._nextId; }
-  set nextId(value: number) { this._nextId = value; }
 
   private _logTaskOperation(action: string, taskId: string): void {
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] Action: ${action} Task: ${taskId}`);
-  }
-
-  // Command execution with history management
-  private _executeCommand(command: ICommand): void {
-    command.execute();
-    
-    // Add to history and maintain max size
-    this._history.push(command);
-    if (this._history.length > MAX_HISTORY_SIZE) {
-      this._history.shift(); // Remove oldest command
-    }
-    
-    // Clear redo stack when new command is executed
-    this._redoStack = [];
-    
-    this._notifyListeners();
-  }
-
-  // Undo/Redo methods
-  canUndo(): boolean {
-    return this._history.length > 0;
-  }
-
-  canRedo(): boolean {
-    return this._redoStack.length > 0;
-  }
-
-  undo(): boolean {
-    if (!this.canUndo()) return false;
-    
-    const command = this._history.pop()!;
-    command.undo();
-    this._redoStack.push(command);
-    
-    // Maintain max redo stack size
-    if (this._redoStack.length > MAX_HISTORY_SIZE) {
-      this._redoStack.shift();
-    }
-    
-    this._notifyListeners();
-    return true;
-  }
-
-  redo(): boolean {
-    if (!this.canRedo()) return false;
-    
-    const command = this._redoStack.pop()!;
-    command.execute();
-    this._history.push(command);
-    
-    this._notifyListeners();
-    return true;
-  }
-
-  getLastOperation(): string | null {
-    if (this._history.length === 0) return null;
-    return this._history[this._history.length - 1].getDescription();
-  }
-
-  getNextRedoOperation(): string | null {
-    if (this._redoStack.length === 0) return null;
-    return this._redoStack[this._redoStack.length - 1].getDescription();
   }
 
   // API sync methods
@@ -163,24 +82,30 @@ export class TaskStore implements TaskStoreState {
   }
 
   addTask(title: string, description: string = ''): ITask {
-    const command = new AddTaskCommand(this, title, description);
-    this._executeCommand(command);
-    
-    const taskId = (command as AddTaskCommand).getTaskId();
-    this._logTaskOperation('create', taskId);
+    const task = new TaskModel(
+      this._generateId(),  
+      title,
+      description,
+      false,
+      'pending' // Start as pending sync
+    );
+    this._tasks.set(task.id, task);
+    this._logTaskOperation('create', task.id);
+    this._notifyListeners();
     
     // Schedule auto-save for new task
-    this._scheduleAutoSave(taskId);
+    this._scheduleAutoSave(task.id);
     
-    return this._tasks.get(taskId)!; 
+    return task; 
   }
 
   updateTaskTitle(id: string, title: string): void {
     const task = this._tasks.get(id);
     if (task && task.title !== title) {
-      const command = new UpdateTaskTitleCommand(this, id, title);
-      this._executeCommand(command);
+      const updatedTask = task.updateTitle(title);
+      this._tasks.set(id, updatedTask);
       this._logTaskOperation('update_title', id);
+      this._notifyListeners();
       
       // Schedule auto-save
       this._scheduleAutoSave(id);
@@ -190,9 +115,10 @@ export class TaskStore implements TaskStoreState {
   updateTaskDescription(id: string, description: string): void {
     const task = this._tasks.get(id);
     if (task && task.description !== description) {
-      const command = new UpdateTaskDescriptionCommand(this, id, description);
-      this._executeCommand(command);
+      const updatedTask = task.updateDescription(description);
+      this._tasks.set(id, updatedTask);
       this._logTaskOperation('update_description', id);
+      this._notifyListeners();
       
       // Schedule auto-save
       this._scheduleAutoSave(id);
@@ -202,9 +128,10 @@ export class TaskStore implements TaskStoreState {
   toggleTask(id: string): void {
     const task = this._tasks.get(id);
     if (task) {
-      const command = new ToggleTaskCommand(this, id);
-      this._executeCommand(command);
+      const toggledTask = task.toggle();
+      this._tasks.set(id, toggledTask);
       this._logTaskOperation('toggle', id);
+      this._notifyListeners();
       
       // Schedule auto-save
       this._scheduleAutoSave(id);
@@ -220,9 +147,9 @@ export class TaskStore implements TaskStoreState {
         this._autoSaveTimeouts.delete(id);
       }
       
-      const command = new DeleteTaskCommand(this, id);
-      this._executeCommand(command);
+      this._tasks.delete(id);
       this._logTaskOperation('delete', id);
+      this._notifyListeners();
     }
   }
 

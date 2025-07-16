@@ -1,0 +1,40 @@
+{
+  "inputFile": "1.3-complexity.json",
+  "timestamp": "2025-07-16T20:16:29.071Z",
+  "max": 14,
+  "average": 1.76,
+  "distribution": {
+    "1-3": 60,
+    "4-7": 5,
+    "8-10": 0,
+    "11+": 1
+  },
+  "totalFunctions": 66,
+  "topFunctions": [
+    {
+      "file": "/src/views/task-view.tsx",
+      "complexity": 14,
+      "line": 131
+    },
+    {
+      "file": "/src/views/task-view.tsx",
+      "complexity": 5,
+      "line": 85
+    },
+    {
+      "file": "/src/views/task-view.tsx",
+      "complexity": 5,
+      "line": 95
+    },
+    {
+      "file": "/src/models/task.ts",
+      "complexity": 4,
+      "line": 20
+    },
+    {
+      "file": "/src/stores/task-store.ts",
+      "complexity": 4,
+      "line": 18
+    }
+  ]
+}

@@ -14,10 +14,6 @@ export const TaskView: React.FC = () => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
   const [editing, setEditing] = useState<EditingState>({});
-  const [canUndo, setCanUndo] = useState(taskStore.canUndo());
-  const [canRedo, setCanRedo] = useState(taskStore.canRedo());
-  const [lastOperation, setLastOperation] = useState(taskStore.getLastOperation());
-  const [nextRedoOperation, setNextRedoOperation] = useState(taskStore.getNextRedoOperation());
   
   const _isValidTitle = (title: string): boolean => {
     return title.trim().length > 0 && title.trim().length < 100;
@@ -26,39 +22,12 @@ export const TaskView: React.FC = () => {
   useEffect(() => {
     const unsubscribe = taskStore.subscribe(() => {
       setTasks(taskStore.getTasks());
-      setCanUndo(taskStore.canUndo());
-      setCanRedo(taskStore.canRedo());
-      setLastOperation(taskStore.getLastOperation());
-      setNextRedoOperation(taskStore.getNextRedoOperation());
     });
 
     // Cleanup on unmount
     return () => {
       unsubscribe();
       taskStore.cleanup();
-    };
-  }, []);
-
-  // Separate useEffect for keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        if (taskStore.canUndo()) {
-          taskStore.undo();
-        }
-      } else if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
-        e.preventDefault();
-        if (taskStore.canRedo()) {
-          taskStore.redo();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
@@ -91,14 +60,6 @@ export const TaskView: React.FC = () => {
 
   const handleRetrySync = (id: string) => {
     taskStore.retrySyncTask(id);
-  };
-
-  const handleUndo = () => {
-    taskStore.undo();
-  };
-
-  const handleRedo = () => {
-    taskStore.redo();
   };
 
   const startEditing = (taskId: string, field: 'title' | 'description') => {
@@ -144,57 +105,6 @@ export const TaskView: React.FC = () => {
   return (
     <div className="task-view">
       <h1>Tasks</h1>
-      
-      {/* Undo/Redo Controls */}
-      <div style={{ 
-        marginBottom: '20px', 
-        padding: '10px', 
-        backgroundColor: '#f8f9fa', 
-        borderRadius: '5px',
-        display: 'flex',
-        gap: '10px',
-        alignItems: 'center'
-      }}>
-        <button 
-          onClick={handleUndo}
-          disabled={!canUndo}
-          style={{
-            backgroundColor: canUndo ? '#007bff' : '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '3px',
-            padding: '6px 12px',
-            fontSize: '14px',
-            cursor: canUndo ? 'pointer' : 'not-allowed'
-          }}
-          title={lastOperation ? `Undo: ${lastOperation}` : 'Nothing to undo'}
-        >
-          ↶ Undo
-        </button>
-        
-        <button 
-          onClick={handleRedo}
-          disabled={!canRedo}
-          style={{
-            backgroundColor: canRedo ? '#28a745' : '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '3px',
-            padding: '6px 12px',
-            fontSize: '14px',
-            cursor: canRedo ? 'pointer' : 'not-allowed'
-          }}
-          title={nextRedoOperation ? `Redo: ${nextRedoOperation}` : 'Nothing to redo'}
-        >
-          ↷ Redo
-        </button>
-        
-        {lastOperation && (
-          <span style={{ fontSize: '12px', color: '#6c757d' }}>
-            Last: {lastOperation}
-          </span>
-        )}
-      </div>
       
       <form onSubmit={handleSubmit}>
         <div>
