@@ -1,0 +1,40 @@
+{
+    "fileExtensions": ["ts", "tsx", "js", "jsx"],
+    "detectiveOptions": {
+      "ts": {
+        "skipTypeImports": true
+      },
+      "tsx": {
+        "skipTypeImports": true
+      }
+    },
+    "tsConfig": "./tsconfig.json",
+    "webpackConfig": null,
+    "baseDir": "./src",
+    "excludeRegExp": [".*\\.test\\.(ts|tsx)$", ".*\\.spec\\.(ts|tsx)$"],
+    "imageFormat": "png",
+    "fontSize": "10px",
+    "backgroundColor": "#ffffff",
+    "nodeColor": "#c6c5fe",
+    "edgeColor": "#757575",
+    "graphVizOptions": {
+      "G": {
+        "rankdir": "LR",
+        "bgcolor": "white",
+        "fontname": "Arial",
+        "fontsize": "14"
+      },
+      "N": {
+        "fontname": "Arial",
+        "fontsize": "10",
+        "color": "#c6c5fe",
+        "shape": "box",
+        "style": "rounded,filled",
+        "fillcolor": "#f0f0f0"
+      },
+      "E": {
+        "color": "#757575",
+        "fontsize": "8"
+      }
+    }
+  }
