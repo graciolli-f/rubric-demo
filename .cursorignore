@@ -1,0 +1,17 @@
+analysis/*
+data/*
+experiments/*
+results/*
+templates/*
+metrics/*
+CONTROL.md
+LICENSE
+README.md
+rubric-syntax.md
+valiate.js
+src/*/*.rux
+comprehensiveMETRICS.md
+essentialMETRICS.md
+eslint.config.js
+eslintrc.json
+validate.js
