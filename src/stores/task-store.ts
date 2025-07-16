@@ -5,10 +5,11 @@ export class TaskStore {
   private _listeners: Set<() => void> = new Set();       
   private _nextId: number = 1;                           
 
-  addTask(title: string): ITask {
+  addTask(title: string, description: string = ''): ITask {
     const task = new TaskModel(
       this._generateId(),  
       title,
+      description,
       false
     );
     this._tasks.set(task.id, task);
@@ -28,6 +29,7 @@ export class TaskStore {
     return Array.from(this._tasks.values()).map(task => ({
       id: task.id,
       title: task.title,
+      description: task.description,
       completed: task.completed
     }));
   }
