@@ -4,6 +4,7 @@ experiments/*
 results/*
 templates/*
 metrics/*
+notes/*
 CONTROL.md
 LICENSE
 README.md
