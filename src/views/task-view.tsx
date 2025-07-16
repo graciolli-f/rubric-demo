@@ -4,6 +4,7 @@ import { taskStore } from '../stores/task-store';
 export const TaskView: React.FC = () => {
   const [tasks, setTasks] = useState(taskStore.getTasks());
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskDescription, setNewTaskDescription] = useState('');
   
   const _isValidTitle = (title: string): boolean => {
     return title.trim().length > 0 && title.trim().length < 100;
@@ -18,8 +19,9 @@ export const TaskView: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (_isValidTitle(newTaskTitle)) {
-      taskStore.addTask(newTaskTitle.trim());
+      taskStore.addTask(newTaskTitle.trim(), newTaskDescription.trim());
       setNewTaskTitle('');
+      setNewTaskDescription('');
     }
   };
 
@@ -38,6 +40,12 @@ export const TaskView: React.FC = () => {
           onChange={(e) => setNewTaskTitle(e.target.value)}
           placeholder="Add a new task..."
         />
+        <textarea
+          value={newTaskDescription}
+          onChange={(e) => setNewTaskDescription(e.target.value)}
+          placeholder="Add a description (optional)..."
+          rows={3}
+        />
         <button type="submit">Add</button>
       </form>
 
@@ -50,11 +58,23 @@ export const TaskView: React.FC = () => {
                 checked={task.completed}
                 onChange={() => handleToggle(task.id)}
               />
-              <span style={{
+              <div style={{
                 textDecoration: task.completed ? 'line-through' : 'none'
               }}>
-                {task.title}
-              </span>
+                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                  {task.title}
+                </div>
+                {task.description && (
+                  <div style={{ 
+                    fontSize: '0.9em', 
+                    color: '#666', 
+                    fontStyle: 'italic',
+                    marginLeft: '4px'
+                  }}>
+                    {task.description}
+                  </div>
+                )}
+              </div>
             </label>
           </li>
         ))}

@@ -53,9 +53,9 @@ git commit -m "Act 1: Starting with clean architecture"
 - **Trial 3**: Architectural stress test
 
 ### Models to Test
-1. **Claude 3.5 Sonnet** (via Cursor)
-2. **GPT-4** (via Cursor)
-3. **Gemini** (if available in Cursor)
+1. **Claude 4 Sonnet (thinking)** (via Cursor)
+2. **GPT-4o** (via Cursor)
+3. **Gemini 2.5 Pro (thinking)** (via Cursor)
 
 Total experiments: 9 (3 models × 3 trials)
 
