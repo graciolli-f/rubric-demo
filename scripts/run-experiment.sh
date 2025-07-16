@@ -41,6 +41,12 @@ run_prompt() {
     
     read -p "Press Enter when AI has completed the changes..."
     
+    # Ask about saving response
+    echo ""
+    echo "💡 Did you export the AI response from Cursor?"
+    echo "   (Click ⋮ in chat → Export → Save as 'prompt-response.md')"
+    read -p "Press Enter when saved (or skip)..."
+    
     # Run analysis
     echo ""
     ./scripts/after-prompt.sh $PROMPT_NUM
