@@ -61,18 +61,57 @@ srcFiles.forEach(file => {
 });
 
 // Check for private member exposure
-const privateExposureRegex = /\b\w+\._\w+/g;
 const privateExposures = [];
-let exposureMatch;
 
-while ((exposureMatch = privateExposureRegex.exec(detailedDiff)) !== null) {
-    if (!exposureMatch[0].includes('this._')) {
+srcFiles.forEach(file => {
+    if (!fs.existsSync(file)) return;
+    
+    const content = fs.readFileSync(file, 'utf8');
+    
+    // 1. Direct access to private members (e.g., object._private)
+    const directAccessRegex = /\b\w+\._\w+/g;
+    let match;
+    while ((match = directAccessRegex.exec(content)) !== null) {
+        if (!match[0].includes('this._')) {
+            privateExposures.push({
+                type: 'direct-access',
+                match: match[0],
+                file: file
+            });
+        }
+    }
+    
+    // 2. Getters that expose private collections/objects
+    const getterExposeRegex = /get\s+(\w+)\(\)[^{]*{\s*return\s+this\.(_\w+)\s*;?\s*}/g;
+    while ((match = getterExposeRegex.exec(content)) !== null) {
+        const publicName = match[1];
+        const privateName = match[2];
+        
+        // Check if it's exposing a collection or mutable object
+        if (content.includes(`${privateName}: Map<`) || 
+            content.includes(`${privateName}: Set<`) ||
+            content.includes(`${privateName}: Array<`) ||
+            content.includes(`${privateName}[]`)) {
+            privateExposures.push({
+                type: 'getter-exposes-mutable',
+                public: publicName,
+                private: privateName,
+                file: file
+            });
+        }
+    }
+    
+    // 3. Setters for private members
+    const setterRegex = /set\s+(\w+)\([^)]+\)[^{]*{\s*this\.(_\w+)\s*=/g;
+    while ((match = setterRegex.exec(content)) !== null) {
         privateExposures.push({
-            match: exposureMatch[0],
-            context: detailedDiff.substring(exposureMatch.index - 50, exposureMatch.index + 50)
+            type: 'setter-for-private',
+            public: match[1],
+            private: match[2],
+            file: file
         });
     }
-}
+});
 
 // Count added/removed lines
 const additions = (detailedDiff.match(/^\+[^+]/gm) || []).length;

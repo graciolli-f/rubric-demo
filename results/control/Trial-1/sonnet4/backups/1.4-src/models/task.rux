@@ -1,0 +1,28 @@
+module Task {
+  @ "Pure domain model with encapsulated state.
+  @ All data access must go through public getters."
+  
+  location: "src/models/task.ts"
+  
+  interface {
+    @ "Public API - consumers should use these"
+    public constructor(id: string, title: string, completed: boolean)
+    public get id() -> string
+    public get title() -> string  
+    public get completed() -> boolean
+    public toggle() -> TaskModel
+  }
+  
+  state {
+    @ "Private state - must not be accessed directly"
+    private _id: string
+    private _title: string  
+    private _completed: boolean
+  }
+  
+  constraints {
+    deny io.*            @ "Models are pure"
+    deny imports.*       @ "No dependencies"
+    deny direct.state.*  @ "No direct access to _ members"
+  }
+}

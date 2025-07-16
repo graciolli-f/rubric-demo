@@ -1,0 +1,66 @@
+{
+  "prompt": "1.4",
+  "timestamp": "2025-07-16T20:28:17.871Z",
+  "files": {
+    "changed": 18,
+    "srcChanged": 3,
+    "total": 4,
+    "details": [
+      "src/stores/commands.ts",
+      "src/stores/task-store.ts",
+      "src/views/task-view.tsx"
+    ]
+  },
+  "violations": {
+    "boundary": 1,
+    "details": [
+      {
+        "type": "view-imports-model",
+        "file": "src/views/task-view.tsx",
+        "importPath": "../models/task",
+        "description": "View should not directly import Model"
+      }
+    ]
+  },
+  "privateExposures": {
+    "count": 3,
+    "details": [
+      {
+        "type": "getter-exposes-mutable",
+        "public": "tasks",
+        "private": "_tasks",
+        "file": "src/stores/task-store.ts",
+        "description": "Getter 'tasks' exposes private mutable collection '_tasks'"
+      },
+      {
+        "type": "getter-exposes-private",
+        "public": "nextId",
+        "private": "_nextId",
+        "file": "src/stores/task-store.ts",
+        "description": "Getter 'nextId' exposes private member '_nextId'"
+      },
+      {
+        "type": "setter-for-private",
+        "public": "nextId",
+        "private": "_nextId",
+        "file": "src/stores/task-store.ts",
+        "description": "Setter 'nextId' allows modification of private member '_nextId'"
+      }
+    ]
+  },
+  "complexity": {
+    "max": 14,
+    "average": 1.88,
+    "distribution": {
+      "1-3": 100,
+      "4-7": 6,
+      "8-10": 1,
+      "11+": 2
+    }
+  },
+  "gitStats": {
+    "additions": 1828,
+    "deletions": 470,
+    "netChange": 1358
+  }
+}

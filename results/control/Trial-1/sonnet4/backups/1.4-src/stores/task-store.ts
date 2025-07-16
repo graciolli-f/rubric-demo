@@ -13,39 +13,6 @@ const API_BASE_URL = 'https://api.example.com/tasks';
 const AUTO_SAVE_DEBOUNCE_MS = 1000; // 1 second debounce
 const MAX_HISTORY_SIZE = 10; // Maximum number of operations to keep for undo
 
-// New: Bulk delete command for handling multiple tasks at once
-class BulkDeleteCommand implements ICommand {
-  private _taskIds: string[];
-  private _deletedTasks: Map<string, TaskModel> = new Map();
-  private _store: TaskStore;
-
-  constructor(store: TaskStore, taskIds: string[]) {
-    this._store = store;
-    this._taskIds = taskIds;
-  }
-
-  execute(): void {
-    // Store deleted tasks for undo
-    this._taskIds.forEach(id => {
-      const task = this._store.tasks.get(id);
-      if (task) {
-        this._deletedTasks.set(id, task);
-        this._store.tasks.delete(id);
-      }
-    });
-  }
-
-  undo(): void {
-    this._deletedTasks.forEach((task, id) => {
-      this._store.tasks.set(id, task);
-    });
-  }
-
-  getDescription(): string {
-    return `Delete ${this._taskIds.length} tasks`;
-  }
-}
-
 export class TaskStore implements TaskStoreState {
   private _tasks: Map<string, TaskModel> = new Map();     
   private _listeners: Set<() => void> = new Set();       
@@ -56,35 +23,10 @@ export class TaskStore implements TaskStoreState {
   private _history: ICommand[] = [];
   private _redoStack: ICommand[] = [];
 
-  // New: Search and filter state
-  private _searchQuery: string = '';
-  private _filteredTasks: ITask[] = [];
-  private _taskCounts: {
-    total: number;
-    completed: number;
-    pending: number;
-    synced: number;
-    syncing: number;
-    error: number;
-  } = {
-    total: 0,
-    completed: 0,
-    pending: 0,
-    synced: 0,
-    syncing: 0,
-    error: 0
-  };
-
   // Expose state for commands
   get tasks(): Map<string, TaskModel> { return this._tasks; }
   get nextId(): number { return this._nextId; }
   set nextId(value: number) { this._nextId = value; }
-
-  // New: Get search query
-  get searchQuery(): string { return this._searchQuery; }
-
-  // New: Get task counts
-  get taskCounts() { return { ...this._taskCounts }; }
 
   private _logTaskOperation(action: string, taskId: string): void {
     const timestamp = new Date().toISOString();
@@ -292,81 +234,7 @@ export class TaskStore implements TaskStoreState {
     }
   }
 
-  // New: Search functionality with debouncing
-  setSearchQuery(query: string): void {
-    this._searchQuery = query.toLowerCase().trim();
-    this._updateFilteredTasks();
-    this._notifyListeners();
-  }
-
-  private _updateFilteredTasks(): void {
-    const allTasks = Array.from(this._tasks.values()).map(task => ({
-      id: task.id,
-      title: task.title,
-      description: task.description,
-      completed: task.completed,
-      syncStatus: task.syncStatus,
-      lastSyncError: task.lastSyncError
-    }));
-
-    if (!this._searchQuery) {
-      this._filteredTasks = allTasks;
-    } else {
-      this._filteredTasks = allTasks.filter(task => 
-        task.title.toLowerCase().includes(this._searchQuery) ||
-        task.description.toLowerCase().includes(this._searchQuery)
-      );
-    }
-
-    this._updateTaskCounts();
-  }
-
-  private _updateTaskCounts(): void {
-    const allTasks = Array.from(this._tasks.values());
-    
-    this._taskCounts = {
-      total: allTasks.length,
-      completed: allTasks.filter(t => t.completed).length,
-      pending: allTasks.filter(t => t.syncStatus === 'pending').length,
-      synced: allTasks.filter(t => t.syncStatus === 'synced').length,
-      syncing: allTasks.filter(t => t.syncStatus === 'syncing').length,
-      error: allTasks.filter(t => t.syncStatus === 'error').length
-    };
-  }
-
-  // New: Bulk operations
-  bulkDeleteTasks(taskIds: string[]): void {
-    if (taskIds.length === 0) return;
-
-    // Clear any pending auto-saves for these tasks
-    taskIds.forEach(id => {
-      const existingTimeout = this._autoSaveTimeouts.get(id);
-      if (existingTimeout) {
-        clearTimeout(existingTimeout);
-        this._autoSaveTimeouts.delete(id);
-      }
-    });
-
-    const command = new BulkDeleteCommand(this, taskIds);
-    this._executeCommand(command);
-    this._logTaskOperation('bulk_delete', `${taskIds.length} tasks`);
-  }
-
-  bulkToggleTasks(taskIds: string[]): void {
-    taskIds.forEach(id => {
-      if (this._tasks.has(id)) {
-        this.toggleTask(id);
-      }
-    });
-  }
-
-  // Enhanced getTasks to return filtered results
   getTasks(): ITask[] {
-    return [...this._filteredTasks];
-  }
-
-  // New: Get all tasks (unfiltered) for bulk operations
-  getAllTasks(): ITask[] {
     return Array.from(this._tasks.values()).map(task => ({
       id: task.id,
       title: task.title,
@@ -387,7 +255,6 @@ export class TaskStore implements TaskStoreState {
   }
 
   private _notifyListeners(): void {
-    this._updateFilteredTasks();
     this._listeners.forEach(listener => listener());
   }
 
