@@ -1,0 +1,32 @@
+{
+  "prompt": "1.1",
+  "timestamp": "2025-07-16T19:28:52.801Z",
+  "files": {
+    "changed": 3,
+    "srcChanged": 3,
+    "total": 4,
+    "details": [
+      "src/models/task.ts",
+      "src/stores/task-store.ts",
+      "src/views/task-view.tsx"
+    ]
+  },
+  "violations": {
+    "boundary": 0,
+    "details": []
+  },
+  "privateExposures": {
+    "count": 0,
+    "details": []
+  },
+  "complexity": {
+    "max": 0,
+    "average": 0,
+    "distribution": {}
+  },
+  "gitStats": {
+    "additions": 36,
+    "deletions": 9,
+    "netChange": 27
+  }
+}

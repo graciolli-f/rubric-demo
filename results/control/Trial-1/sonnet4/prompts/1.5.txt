@@ -1,0 +1,5 @@
+The app needs to handle 10,000 tasks. Add:
+- Virtual scrolling for the task list
+- Search with debouncing
+- Bulk operations (select all, delete selected)
+- Task counts by status

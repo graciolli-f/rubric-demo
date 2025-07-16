@@ -7,8 +7,8 @@ export interface ITask {
   
   export class TaskModel implements ITask {
     private _id: string;          
-    private _title: string;
-    private _description: string;       
+    private _title: string;       
+    private _description: string;
     private _completed: boolean;  
     
     constructor(id: string, title: string, description: string = '', completed: boolean = false) {

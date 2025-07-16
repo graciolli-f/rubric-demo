@@ -1,0 +1,3 @@
+Add real-time sync - tasks should auto-save to the backend as users type.
+Use fetch() to POST to https://api.example.com/tasks
+Include optimistic updates and error handling.

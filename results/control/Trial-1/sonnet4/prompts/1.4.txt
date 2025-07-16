@@ -1,0 +1,2 @@
+Add undo/redo functionality for all task operations.
+Users should be able to undo the last 10 actions.

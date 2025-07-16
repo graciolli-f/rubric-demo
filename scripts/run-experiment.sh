@@ -14,6 +14,40 @@ if [ ! -d "results/control/trial-1/sonnet4" ]; then
     echo ""
 fi
 
+# Ensure prompts directory exists and has files
+if [ ! -d "results/control/trial-1/sonnet4/prompts" ] || [ ! -f "results/control/trial-1/sonnet4/prompts/1.1.txt" ]; then
+    echo "Creating missing prompts..."
+    mkdir -p results/control/trial-1/sonnet4/prompts
+    
+    cat > results/control/trial-1/sonnet4/prompts/1.1.txt << 'EOF'
+Add a task description field to the existing task model and display it in the UI.
+EOF
+
+    cat > results/control/trial-1/sonnet4/prompts/1.2.txt << 'EOF'
+Add logging for all task operations (create, toggle, delete). 
+Log to console: "[timestamp] Action: [action] Task: [id]"
+EOF
+
+    cat > results/control/trial-1/sonnet4/prompts/1.3.txt << 'EOF'
+Add real-time sync - tasks should auto-save to the backend as users type.
+Use fetch() to POST to https://api.example.com/tasks
+Include optimistic updates and error handling.
+EOF
+
+    cat > results/control/trial-1/sonnet4/prompts/1.4.txt << 'EOF'
+Add undo/redo functionality for all task operations.
+Users should be able to undo the last 10 actions.
+EOF
+
+    cat > results/control/trial-1/sonnet4/prompts/1.5.txt << 'EOF'
+The app needs to handle 10,000 tasks. Add:
+- Virtual scrolling for the task list
+- Search with debouncing
+- Bulk operations (select all, delete selected)
+- Task counts by status
+EOF
+fi
+
 BASE_DIR="results/control/trial-1/sonnet4"
 
 # Function to run a prompt
@@ -40,6 +74,12 @@ run_prompt() {
     echo ""
     
     read -p "Press Enter when AI has completed the changes..."
+    
+    # Ask about saving response
+    echo ""
+    echo "💡 Did you export the AI response from Cursor?"
+    echo "   (Click ⋮ in chat → Export → Save as 'prompt-response.md')"
+    read -p "Press Enter when saved (or skip)..."
     
     # Run analysis
     echo ""

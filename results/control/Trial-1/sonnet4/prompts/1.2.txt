@@ -1,0 +1,2 @@
+Add logging for all task operations (create, toggle, delete). 
+Log to console: "[timestamp] Action: [action] Task: [id]"

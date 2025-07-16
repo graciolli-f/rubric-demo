@@ -1,0 +1,31 @@
+module TaskStore {
+  @ "Encapsulated state management.
+  @ Private members must not be exposed."
+  
+  location: "src/stores/task-store.ts"
+  
+  interface {
+    @ "Public API only - no access to private members"
+    public addTask(title: string) -> ITask
+    public toggleTask(id: string) -> void
+    public getTasks() -> ITask[]
+    public subscribe(listener: Function) -> Function
+  }
+  
+  state {
+    @ "Private implementation details"
+    private _tasks: Map<string, TaskModel>
+    private _listeners: Set<Function>
+    private _nextId: number
+  }
+  
+  imports {
+    allow "../models/task" as {TaskModel, ITask}
+  }
+  
+  constraints {
+    deny exports ["_*"]        @ "Never export private members"
+    deny return ["_tasks"]     @ "Don't return internal state"
+    deny return ["TaskModel"]  @ "Return interfaces, not implementations"
+  }
+}
