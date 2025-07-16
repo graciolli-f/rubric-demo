@@ -1,0 +1,14 @@
+analysis/*
+results/*
+demo/*
+data/*
+experiments/*
+templates/*
+.cursorrules
+CONTROL.md
+LICENSE
+README.md
+rubric-syntax.md
+validate.json
+directory_tree.txt
+
